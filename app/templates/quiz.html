@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Mecanică</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Test de Mecanică</h1>
+    <form action="/quiz" method="POST">
+        <!-- Numele utilizatorului -->
+        <label for="user_name">Numele tău:</label>
+        <input type="text" name="user_name" required>
+        <br><br>
+         <!-- Afișează fiecare întrebare -->
+        {% for question in questions %}
+            <p><strong>{{ question.question }}</strong></p>
+            <!-- Răspunsurile posibile, sub formă de radio buttons -->
+            {% for option in question.options %}
+                <input type="radio" name="question_{{ question._id }}" value="{{ option }}" required> {{ option }}<br>
+            {% endfor %}
+            <br>
+        {% endfor %}
+        <!-- Buton pentru trimiterea răspunsurilor -->
+        <button type="submit">Trimite</button>
+    </form>
+</body>
+</html>
