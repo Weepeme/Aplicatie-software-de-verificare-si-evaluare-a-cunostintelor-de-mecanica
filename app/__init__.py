@@ -7,7 +7,7 @@ def create_app():
     app = Flask(__name__)
    
  # Creează o conexiune către MongoDB Atlas folosind un connection string
-    client = MongoClient("mongodb+srv://adriandumitru150:Rebelde150@cluster0.vkfbx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = MongoClient(os.environ["MONGO_URI"])
     # Selectează baza de date
     db = client["questions_for_app"]
     # Selectează colecția din baza de date
