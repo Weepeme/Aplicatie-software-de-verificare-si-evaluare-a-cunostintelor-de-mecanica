@@ -1,0 +1,131 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    color: #140b0b;
+  
+    background-image: url('../static/Image-for-app.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+
+header {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(0, 0, 0, 0.6);
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 3em;
+    margin: 0;
+}
+
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #ada6a6;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #ada6a6;
+}
+
+
+form {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 30px;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 600px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+
+form input[type="text"],
+form input[type="radio"],
+form button {
+    margin: 10px 0;
+    font-size: 1em;
+}
+
+
+fieldset {
+    border: 2px solid #fff;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+legend {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+}
+
+table, th, td {
+    border: 1px solid #fff;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    font-size: 0.9em;
+}
+
+.center-title {
+    text-align: center;
+}
+
+.center-form input[type="text"] {
+    display: block;
+    margin: 0 auto 20px auto;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.button-center {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.quiz-container, body {
+    color: white;
+}
+
+.timer-container {
+    color: black;
+}
