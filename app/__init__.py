@@ -33,8 +33,6 @@ def create_app():
     app.config["USERS_COLLECTION"] = db["users"]
     app.config["TESTS_COLLECTION"] = db["Tests"]
 
-    db["leaderboard"].delete_many({})
-
     from .routes import bp
     # Înregistrează Blueprint-ul pentru rutare
     app.register_blueprint(bp)
