@@ -2,12 +2,12 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8" />
-    <title>Clasament Student {{ student_name }}</title>
+    <title>Punctaj Student {{ student_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
 </head>
 <body>
     <div class="wrapper">
-    <h1>Clasament pentru {{ student_name }}</h1>
+    <h1>Punctaj pentru {{ student_name }}</h1>
 
     {% if tests and tests|length > 0 %}
         <table>
