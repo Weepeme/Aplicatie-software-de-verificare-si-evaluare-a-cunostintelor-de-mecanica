@@ -126,12 +126,6 @@ td {
     text-align: center;
 }
 
-tr:hover {
-    background-color: rgba(173, 166, 166, 0.3);
-    color: black;
-    font-weight: 600;
-}
-
 footer {
     text-align: center;
     padding: 20px;
