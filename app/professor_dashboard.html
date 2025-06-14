@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Profesor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Dashboard Profesor</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <label for="student_name">Nume student:</label><br>
+        <input type="text" id="student_name" name="student_name" required><br><br>
+
+        <label>Dificultate:</label><br>
+        <input type="radio" id="usor" name="difficulty" value="usor" required>
+        <label for="usor">Ușor</label><br>
+        <input type="radio" id="intermediar" name="difficulty" value="intermediar">
+        <label for="intermediar">Intermediar</label><br>
+        <input type="radio" id="avansat" name="difficulty" value="avansat">
+        <label for="avansat">Avansat</label><br><br>
+<div class="button-center">
+        <button type="submit">Generează Test</button>
+        </div>
+    </form>
+
+    {% if test_url %}
+        <p>Testul a fost creat: 
+          <a href="{{ test_url }}" target="_blank" class="highlight-link">{{ test_url }}</a></p>
+    {% endif %}
+
+    <!-- Link către leaderboard -->
+    <div class="button-center" style="margin-top: 30px;">
+    <a href="{{ url_for('routes.leaderboard') }}" class="btn">Vezi Punctajul Global</a>
+</div>
+
+<div class="button-center">
+    <p><a href="{{ url_for('routes.logout') }}" class="btn">Logout</a></p>
+    </div>
+  </div>
+</body>
+</html>
