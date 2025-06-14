@@ -81,8 +81,6 @@ def professor_dashboard():
 
 # Ruta de redirect pentru test, care duce la pagina quiz cu parametru test_id
 @bp.route('/take_test/<test_id>')
-@login_required
-@role_required('profesor')
 def take_test(test_id):
     return redirect(url_for('routes.quiz', test_id=test_id))
 
