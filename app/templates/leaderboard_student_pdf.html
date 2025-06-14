@@ -2,7 +2,7 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8" />
-    <title>Clasament Student {{ student_name }}</title>
+    <title>Punctaj Student {{ student_name }}</title>
     <style>
         body { font-family: Arial, sans-serif; color: #000; }
         h1 { text-align: center; }
@@ -12,7 +12,7 @@
     </style>
 </head>
 <body>
-    <h1>Clasament pentru {{ student_name }}</h1>
+    <h1>Punctaj pentru {{ student_name }}</h1>
     {% if tests and tests|length > 0 %}
         <table>
             <thead>
