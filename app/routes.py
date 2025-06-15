@@ -241,6 +241,11 @@ def leaderboard_pdf():
             "average_score": {"$avg": "$score"},
             "tests_count": {"$sum": 1}
         }},
+        {"$project": {
+        "average_score": 1,
+        "tests_count": 1,
+        "average_grade": {"$multiply": [{"$divide": ["$average_score", 12]}, 10]}
+    }},
         {"$sort": {"average_score": -1}}
     ]
 
