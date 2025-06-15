@@ -23,6 +23,7 @@
                 <tr>
                     <td>{{ entry._id }}</td>
                     <td>{{ "%.2f"|format(entry.average_score) }}/12</td>
+                    <td>{{ "%.2f"|format(entry.average_grade) }}/10</td>
                     <td>{{ entry.tests_count }}</td>
                 </tr>
                 {% endfor %}
