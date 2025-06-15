@@ -297,7 +297,7 @@ def leaderboard_student_pdf(student_name):
     pdf.seek(0)
     response = make_response(pdf.read())
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename=Clasament_{student_name}.pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Punctaj_{student_name}.pdf'
     return response
 
 
