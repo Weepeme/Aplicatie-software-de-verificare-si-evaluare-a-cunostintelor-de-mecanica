@@ -242,6 +242,8 @@ def leaderboard():
 
     leaderboard_data = list(tests_collection.aggregate(pipeline))
 
+     for entry in leaderboard_data:
+        entry['average_grade'] = (entry['average_score'] / 12) * 10
     # Trimitem datele către template pentru afișare
     return render_template('leaderboard.html', leaderboard=leaderboard_data)
 
