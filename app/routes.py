@@ -268,9 +268,9 @@ def leaderboard_pdf():
 
     leaderboard_data = list(tests_collection.aggregate(pipeline))
 
-     for entry in leaderboard_data:
+    for entry in leaderboard_data:
         entry['average_grade'] = (entry['average_score'] / 12) * 10
-    # Randăm template-ul PDF cu datele agregate
+
     rendered = render_template("leaderboard_pdf.html", leaderboard=leaderboard_data)
 
     pdf = BytesIO()
