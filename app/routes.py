@@ -156,7 +156,7 @@ def quiz():
         time_left=int(time_left)
     )
 
-# Clasament individual al unui student (toate testele lui)
+# Punctaj individual al unui student (toate testele lui)
 @bp.route('/leaderboard/student/<student_name>')
 def leaderboard_student(student_name):
     tests_collection = current_app.config.get("TESTS_COLLECTION")
@@ -220,7 +220,7 @@ def login():
 
     return render_template('login.html')
 
-# Clasament global pentru profesori
+# Punctaj global pentru profesori
 @bp.route('/leaderboard')
 @login_required
 @role_required('profesor')
@@ -245,7 +245,7 @@ def leaderboard():
     # Trimitem datele către template pentru afișare
     return render_template('leaderboard.html', leaderboard=leaderboard_data)
 
-# Generare PDF pentru clasamentul global
+# Generare PDF pentru punctajul global
 @bp.route('/leaderboard/pdf')
 @login_required
 @role_required('profesor')
@@ -280,7 +280,7 @@ def leaderboard_pdf():
     response.headers['Content-Disposition'] = 'attachment; filename=Punctaj_Global.pdf'
     return response
 
-# Generare PDF pentru clasamentul individual al studentului
+# Generare PDF pentru punctajul individual al studentului
 @bp.route('/leaderboard/student/<student_name>/pdf')
 def leaderboard_student_pdf(student_name):
     tests_collection = current_app.config.get("TESTS_COLLECTION")
