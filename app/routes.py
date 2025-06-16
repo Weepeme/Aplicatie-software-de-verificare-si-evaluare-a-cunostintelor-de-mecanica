@@ -11,44 +11,51 @@ from flask import Blueprint, render_template, current_app, jsonify, request, red
 import random
 from bson.objectid import ObjectId
 
+# Creăm un blueprint pentru rutele aplicației
 bp = Blueprint("routes", __name__)
 
-# Decorator pentru roluri (ex: profesor)
+# Decorator pentru restricționarea accesului pe bază de rol
 def role_required(role):
     def decorator(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
+            # Verificăm dacă utilizatorul este autentificat și are rolul necesar
             if not current_user.is_authenticated or current_user.role != role:
-                abort(403)
+                abort(403)  # Acces interzis
             return f(*args, **kwargs)
         return wrapped
     return decorator
 
-# Ruta principală - redirecționează la login indiferent dacă ești autentificat
+# Ruta principală redirecționează către login indiferent de stare
 @bp.route('/')
 def home():
     return redirect(url_for('routes.login'))
 
-# Dashboard profesor - generare test
+# Dashboard-ul profesorului: aici poate genera teste pentru studenți
 @bp.route('/professor_dashboard', methods=['GET', 'POST'])
 @login_required
-@role_required('profesor')
+@role_required('profesor')  # Doar profesorii pot accesa
 def professor_dashboard():
     test_url = None
     if request.method == 'POST':
+        # Preluăm datele trimise din formular: numele studentului și dificultatea
         student_name = request.form.get('student_name')
         difficulty = request.form.get('difficulty')
 
+        # Validare simplă: toate câmpurile obligatorii
         if not student_name or not difficulty:
             flash("Completează toate câmpurile!", "warning")
             return redirect(url_for('routes.professor_dashboard'))
 
+        # Accesăm colecțiile din MongoDB din config-ul aplicației
         questions_collection = current_app.config.get("QUESTIONS_COLLECTION")
         tests_collection = current_app.config.get("TESTS_COLLECTION")
 
+        # Domeniile pentru întrebări
         domains = ["Cinematica", "Dinamica", "Statica"]
         selected_questions = []
 
+        # Pentru fiecare domeniu, selectăm aleator 4 întrebări de dificultatea aleasă
         for domain in domains:
             qs = list(questions_collection.find({"domain": domain, "difficulty": difficulty}))
             if len(qs) < 4:
@@ -56,35 +63,39 @@ def professor_dashboard():
                 return redirect(url_for('routes.professor_dashboard'))
             selected_questions += random.sample(qs, 4)
 
-        random.shuffle(selected_questions)
+        random.shuffle(selected_questions)  # Amestecăm întrebările alese
 
+        # Cream un ID unic pentru test
         test_id = str(uuid4())
         test_doc = {
             "_id": test_id,
             "student_name": student_name,
             "difficulty": difficulty,
             "questions": selected_questions,
-            "answers": {},
+            "answers": {},          # Răspunsuri goale inițial
             "score": None,
             "completed": False,
             "created_at": datetime.utcnow(),
             "completed_at": None,
-            "expires_at": datetime.utcnow() + timedelta(minutes=10)  # Expirare test 10 min
+            # Adăugăm expirarea testului după 10 minute
+            "expires_at": datetime.utcnow() + timedelta(minutes=10)
         }
-        tests_collection.insert_one(test_doc)
+        tests_collection.insert_one(test_doc)  # Salvăm testul în DB
 
-        # Folosim ruta take_test care redirecționează la /quiz
+        # Generăm URL-ul la care studentul va accesa testul
         test_url = url_for('routes.take_test', test_id=test_id, _external=True)
         flash("Test creat cu succes!", "success")
 
+    # Returnăm pagina dashboard cu eventualul link către testul generat
     return render_template('professor_dashboard.html', test_url=test_url)
 
-# Ruta de redirect pentru test, care duce la pagina quiz cu parametru test_id
+# Ruta care redirecționează către pagina quiz cu testul
 @bp.route('/take_test/<test_id>')
 def take_test(test_id):
+    # Redirecționăm către /quiz cu parametru test_id pentru afișarea testului
     return redirect(url_for('routes.quiz', test_id=test_id))
 
-# Pagina de test pentru student
+# Pagina quiz pentru student, afișează întrebările și gestionează răspunsurile
 @bp.route('/quiz', methods=['GET', 'POST'])
 def quiz():
     test_id = request.args.get('test_id')
@@ -96,24 +107,29 @@ def quiz():
     if not test_doc:
         return "Testul nu există.", 404
 
+    # Calculăm timpul rămas pentru test
     time_left = (test_doc['expires_at'] - datetime.utcnow()).total_seconds()
     if time_left < 0:
         time_left = 0
 
+    # Dacă testul este deja finalizat, afișăm scorul și nu mai permite testul
     if test_doc.get('completed', False):
         return f"Testul este deja finalizat. Scor: {test_doc.get('score', 0)}/12."
 
     if request.method == "POST":
+        # Preluăm răspunsurile trimise
         user_answers = request.form.to_dict(flat=True)
         answers = test_doc.get('answers', {})
-        answers.update(user_answers)
+        answers.update(user_answers)  # Actualizăm răspunsurile din DB
 
+        # Calculăm scorul
         score = 0
         for q in test_doc['questions']:
             qid = str(q['_id'])
             if qid in answers and answers[qid].strip() == q['answer'].strip():
                 score += 1
 
+        # Verificăm dacă testul a fost complet finalizat
         completed = request.form.get('completed') == 'true'
 
         update_data = {
@@ -125,10 +141,13 @@ def quiz():
         tests_collection.update_one({"_id": test_id}, {"$set": update_data})
 
         if completed:
+            # După completare redirecționăm către clasamentul studentului
             return redirect(url_for('routes.leaderboard_student', student_name=test_doc['student_name']))
         else:
+            # Dacă este un submit parțial (ex timer expirat), răspunsurile sunt salvate
             return "Răspunsuri salvate temporar", 200
 
+    # La GET afișăm pagina testului, întrebările și timpul rămas
     return render_template(
         'quiz.html',
         questions=test_doc['questions'],
@@ -137,14 +156,14 @@ def quiz():
         time_left=int(time_left)
     )
 
-# Clasament individual student
+# Clasament individual al unui student (toate testele lui)
 @bp.route('/leaderboard/student/<student_name>')
 def leaderboard_student(student_name):
     tests_collection = current_app.config.get("TESTS_COLLECTION")
     if tests_collection is None:
         return "Configurație colecție teste lipsă", 500
 
-    # Selectăm testele finalizate ale studentului
+    # Preluăm toate testele finalizate ale studentului, ordonate după data completării
     tests_cursor = tests_collection.find({
         "student_name": student_name,
         "completed": True,
@@ -157,6 +176,7 @@ def leaderboard_student(student_name):
         average_score = 0
         average_grade = 0
     else:
+        # Calculăm media scorurilor și media echivalentă (notă)
         total_score = sum(test['score'] for test in tests if test.get('score') is not None)
         count = len(tests)
         average_score = total_score / count if count > 0 else 0
@@ -168,17 +188,17 @@ def leaderboard_student(student_name):
                            average_score=average_score,
                            average_grade=average_grade)
 
-
-# Logout
+# Logout - sesiunea utilizatorului se termină
 @bp.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('routes.login'))
 
-# Login
+# Login - autentificare profesor
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # Dacă deja e autentificat, îl ducem direct în dashboard
     if current_user.is_authenticated:
         return redirect(url_for('routes.professor_dashboard'))
 
@@ -189,6 +209,7 @@ def login():
         users_collection = current_app.config.get('USERS_COLLECTION')
         user_dict = users_collection.find_one({'username': username})
 
+        # Verificăm dacă parola este corectă
         if user_dict and check_password_hash(user_dict['password_hash'], password):
             user = User(user_dict)
             login_user(user)
@@ -199,6 +220,7 @@ def login():
 
     return render_template('login.html')
 
+# Clasament global pentru profesori
 @bp.route('/leaderboard')
 @login_required
 @role_required('profesor')
@@ -207,6 +229,7 @@ def leaderboard():
     if tests_collection is None:
         return "Configurație colecție teste lipsă", 500
 
+    # Agregăm testele finalizate și calculăm media scorurilor pe fiecare student
     pipeline = [
         {"$match": {"completed": True, "score": {"$ne": None}}},
         {"$group": {
@@ -214,18 +237,15 @@ def leaderboard():
             "average_score": {"$avg": "$score"},
             "tests_count": {"$sum": 1}
         }},
-        {"$project": {
-        "average_score": 1,
-        "tests_count": 1,
-        "average_grade": {"$multiply": [{"$divide": ["$average_score", 12]}, 10]}
-    }},
         {"$sort": {"average_score": -1}}
     ]
 
     leaderboard_data = list(tests_collection.aggregate(pipeline))
 
+    # Trimitem datele către template pentru afișare
     return render_template('leaderboard.html', leaderboard=leaderboard_data)
 
+# Generare PDF pentru clasamentul global
 @bp.route('/leaderboard/pdf')
 @login_required
 @role_required('profesor')
@@ -241,16 +261,12 @@ def leaderboard_pdf():
             "average_score": {"$avg": "$score"},
             "tests_count": {"$sum": 1}
         }},
-        {"$project": {
-        "average_score": 1,
-        "tests_count": 1,
-        "average_grade": {"$multiply": [{"$divide": ["$average_score", 12]}, 10]}
-    }},
         {"$sort": {"average_score": -1}}
     ]
 
     leaderboard_data = list(tests_collection.aggregate(pipeline))
 
+    # Randăm template-ul PDF cu datele agregate
     rendered = render_template("leaderboard_pdf.html", leaderboard=leaderboard_data)
 
     pdf = BytesIO()
@@ -264,6 +280,7 @@ def leaderboard_pdf():
     response.headers['Content-Disposition'] = 'attachment; filename=Punctaj_Global.pdf'
     return response
 
+# Generare PDF pentru clasamentul individual al studentului
 @bp.route('/leaderboard/student/<student_name>/pdf')
 def leaderboard_student_pdf(student_name):
     tests_collection = current_app.config.get("TESTS_COLLECTION")
@@ -297,7 +314,5 @@ def leaderboard_student_pdf(student_name):
     pdf.seek(0)
     response = make_response(pdf.read())
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename=Punctaj_{student_name}.pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Clasament_{student_name}.pdf'
     return response
-
-
