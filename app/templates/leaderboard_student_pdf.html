@@ -1,46 +1,77 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="ro">
 <head>
     <meta charset="UTF-8" />
-    <title>Punctaj Student {{ student_name }}</title>
+    <title>Punctaj Student {{ student_name }}</title> <!-- Titlul paginii, afișează numele studentului -->
     <style>
-        body { font-family: Arial, sans-serif; color: #000; }
-        h1 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-        th { background-color: #ddd; }
+        /* Stiluri generale pentru corpul paginii */
+        body { 
+            font-family: Arial, sans-serif; /* Font clar și standard */
+            color: #000; /* Text negru */
+        }
+        /* Stil pentru titlul principal */
+        h1 { 
+            text-align: center; /* Centrare text */
+        }
+        /* Stiluri pentru tabel */
+        table { 
+            width: 100%; /* Tabelul ocupă toată lățimea containerului */
+            border-collapse: collapse; /* Elimină spațiile dintre celulele tabelului */
+        }
+        /* Stiluri pentru celulele tabelului (th și td) */
+        th, td { 
+            border: 1px solid #000; /* Margini negre pentru celule */
+            padding: 8px; /* Spațiere internă */
+            text-align: center; /* Text centrat */
+        }
+        /* Stil pentru antetul tabelului */
+        th { 
+            background-color: #ddd; /* Fundal gri deschis pentru antet */
+        }
     </style>
 </head>
 <body>
+    <!-- Titlu vizibil pe pagină -->
     <h1>Punctaj pentru {{ student_name }}</h1>
+
+    <!-- Condiție: dacă există teste pentru student și lista nu e goală -->
     {% if tests and tests|length > 0 %}
+        <!-- Tabel cu datele testelor -->
         <table border="1" cellspacing="0" cellpadding="5" width="100%">
-  <thead>
-    <tr>
-      <th>Grad de dificultate</th>
-      <th>Data si ora testului</th>
-      <th>Punctaj</th>
-      <th>Media Punctajelor</th>
-      <th>Media echivalata</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for test in tests %}
-    <tr>
-      <td>
-        {{ test.difficulty }}
-      </td>
-      <td>{{ test.completed_at.strftime('%d-%m-%Y %H:%M') if test.completed_at else 'N/A' }}</td>
-      <td>{{ test.score }}/12</td>
-      {% if loop.first %}
-        <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_score) }}/12</td>
-        <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_grade) }}/10</td>
-      {% endif %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+          <thead>
+            <tr>
+              <!-- Coloane pentru dificultate, dată, punctaj și medii -->
+              <th>Grad de dificultate</th>
+              <th>Data si ora testului</th>
+              <th>Punctaj</th>
+              <th>Media Punctajelor</th>
+              <th>Media echivalata</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Iterăm prin fiecare test al studentului -->
+            {% for test in tests %}
+            <tr>
+              <!-- Afișăm dificultatea testului -->
+              <td>
+                {{ test.difficulty }}
+              </td>
+              <!-- Afișăm data și ora la care a fost finalizat testul, sau 'N/A' dacă nu există -->
+              <td>{{ test.completed_at.strftime('%d-%m-%Y %H:%M') if test.completed_at else 'N/A' }}</td>
+              <!-- Afișăm punctajul la test -->
+              <td>{{ test.score }}/12</td>
+
+              <!-- Pentru primul rând afișăm media scorurilor și media echivalată, folosind rowspan pentru a ocupa mai multe rânduri -->
+              {% if loop.first %}
+                <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_score) }}/12</td>
+                <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_grade) }}/10</td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
     {% else %}
+        <!-- Dacă nu există teste, afișăm mesajul corespunzător -->
         <p>Nu există teste efectuate pentru acest student.</p>
     {% endif %}
 </body>
