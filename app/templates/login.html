@@ -8,7 +8,7 @@
 <body>
   <div class="wrapper">
     <h1>Login Profesor</h1>
-
+<!-- Mesaje flash (eroare autentificare etc.) -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <ul>
@@ -18,7 +18,7 @@
         </ul>
       {% endif %}
     {% endwith %}
-
+<!-- Formular autentificare -->
     <form method="POST" action="{{ url_for('routes.login') }}">
         <label for="username">Username:</label><br>
         <input type="text" id="username" name="username" required><br><br>
