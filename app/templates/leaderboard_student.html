@@ -7,61 +7,76 @@
 </head>
 <body>
     <div class="wrapper">
-    <h1>Punctaj pentru {{ student_name }}</h1>
+        <!-- Titlul paginii care afișează numele studentului -->
+        <h1>Punctaj pentru {{ student_name }}</h1>
 
-    {% if tests and tests|length > 0 %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Grad de dificultate</th>
-                    <th>Data și ora testului</th>
-                    <th>Punctaj</th>
-                    <th>Media punctajelor</th>
-        <th>Media echivalată</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for test in tests %}
+        <!-- Verificăm dacă există teste pentru acest student -->
+        {% if tests and tests|length > 0 %}
+            <table>
+                <thead>
                     <tr>
-                        <td class="
-  {% if test.difficulty == 'grad 1' %}
-    grad-1
-  {% elif test.difficulty == 'grad 2' %}
-    grad-2
-  {% elif test.difficulty == 'grad 3' %}
-    grad-3
-  {% else %}
-    grad-default
-  {% endif %}
-">{{ test.difficulty }}</td>
-                        <td>
-    {% if test.completed_at %}
-      {{ test.completed_at.strftime("%d-%m-%Y %H:%M") }}
-    {% else %}
-      {{ test.created_at.strftime("%d-%m-%Y %H:%M") }}
-    {% endif %}
-  </td>
-                        <td>{{ test.score if test.score is not none else 0 }}/12</td>
-                    {% if loop.first %}
-        <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_score) }}/12</td>
-        <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_grade) }}/10</td>
-      {% endif %}
-    </tr>
-                {% endfor %}
-                
-            </tbody>
-            
-        </table>
+                        <!-- Coloane pentru tabel -->
+                        <th>Grad de dificultate</th>
+                        <th>Data și ora testului</th>
+                        <th>Punctaj</th>
+                        <th>Media punctajelor</th>
+                        <th>Media echivalată</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Parcurgem toate testele studentului -->
+                    {% for test in tests %}
+                        <tr>
+                            <!-- Coloana gradului de dificultate cu stilizare dinamică pe clase CSS -->
+                            <td class="
+                                {% if test.difficulty == 'grad 1' %}
+                                    grad-1
+                                {% elif test.difficulty == 'grad 2' %}
+                                    grad-2
+                                {% elif test.difficulty == 'grad 3' %}
+                                    grad-3
+                                {% else %}
+                                    grad-default
+                                {% endif %}
+                            ">
+                                {{ test.difficulty }}
+                            </td>
 
-        
-    {% else %}
-        <p>Nu există teste efectuate pentru acest student.</p>
-    {% endif %}
-    <div class="button-center" style="margin-top: 20px;">
-  <a href="{{ url_for('routes.leaderboard_student_pdf', student_name=student_name) }}" class="btn" target="_blank" rel="noopener noreferrer">
-    Descarcă PDF
-  </a>
-</div>
-</div>
+                            <!-- Coloana pentru data și ora testului: 
+                                 dacă testul este completat afișăm completed_at, altfel created_at -->
+                            <td>
+                                {% if test.completed_at %}
+                                    {{ test.completed_at.strftime("%d-%m-%Y %H:%M") }}
+                                {% else %}
+                                    {{ test.created_at.strftime("%d-%m-%Y %H:%M") }}
+                                {% endif %}
+                            </td>
+
+                            <!-- Coloana pentru punctaj: dacă scorul este None, afișăm 0 -->
+                            <td>{{ test.score if test.score is not none else 0 }}/12</td>
+
+                            <!-- Pentru primul rând (primul test), afișăm mediile
+                                 cu rowspan egal cu numărul total de teste pentru a ocupa mai multe rânduri -->
+                            {% if loop.first %}
+                                <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_score) }}/12</td>
+                                <td rowspan="{{ tests|length }}">{{ '%.2f'|format(average_grade) }}/10</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        <!-- Dacă nu există teste, afișăm un mesaj corespunzător -->
+        {% else %}
+            <p>Nu există teste efectuate pentru acest student.</p>
+        {% endif %}
+
+        <!-- Buton pentru descărcarea PDF-ului cu punctajele studentului -->
+        <div class="button-center" style="margin-top: 20px;">
+            <a href="{{ url_for('routes.leaderboard_student_pdf', student_name=student_name) }}" class="btn" target="_blank" rel="noopener noreferrer">
+                Descarcă PDF
+            </a>
+        </div>
+    </div>
 </body>
 </html>
