@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Punctaj Global Studenți</title>
+    <!-- Link către CSS-ul aplicației -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 <div class="wrapper">
     <h1 class="center-title">Punctaj Global Studenți</h1>
 
+    <!-- Dacă există date de afișat -->
     {% if leaderboard and leaderboard|length > 0 %}
         <table>
             <thead>
@@ -22,28 +24,37 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Iterăm prin fiecare student -->
                 {% for student in leaderboard %}
                     {% set tests_count = student.tests|length %}
+                    <!-- Pentru fiecare test făcut de student -->
                     {% for test in student.tests %}
                     <tr>
+                        <!-- Numele studentului ocupă mai multe rânduri dacă are mai multe teste -->
                         {% if loop.first %}
                             <td rowspan="{{ tests_count }}">
                                 {{ student._id }}
                             </td>
                         {% endif %}
+                        <!-- Coloana cu gradul de dificultate, cu clase CSS pentru culoare -->
                         <td class="
-  {% if test.difficulty == 'grad 1' %}
-    grad-1
-  {% elif test.difficulty == 'grad 2' %}
-    grad-2
-  {% elif test.difficulty == 'grad 3' %}
-    grad-3
-  {% else %}
-    grad-default
-  {% endif %}
-">{{ test.difficulty }}</td>
+                            {% if test.difficulty == 'grad 1' %}
+                                grad-1
+                            {% elif test.difficulty == 'grad 2' %}
+                                grad-2
+                            {% elif test.difficulty == 'grad 3' %}
+                                grad-3
+                            {% else %}
+                                grad-default
+                            {% endif %}
+                        ">
+                            {{ test.difficulty }}
+                        </td>
+                        <!-- Data și ora completării testului -->
                         <td>{{ test.completed_at.strftime('%d-%m-%Y %H:%M') if test.completed_at else 'N/A' }}</td>
+                        <!-- Punctajul obținut -->
                         <td>{{ test.score }}/12</td>
+                        <!-- Media scorurilor și media echivalată - o singură dată per student -->
                         {% if loop.first %}
                             <td rowspan="{{ tests_count }}">{{ '%.2f'|format(student.average_score) }}/12</td>
                             <td rowspan="{{ tests_count }}">{{ '%.2f'|format(student.average_grade) }}/10</td>
@@ -57,9 +68,12 @@
         <p>Nu există date pentru afișare.</p>
     {% endif %}
 
+    <!-- Buton înapoi la dashboard -->
     <div class="button-center" style="margin-top: 20px;">
         <a href="{{ url_for('routes.professor_dashboard') }}" class="btn">Înapoi la Dashboard</a>
     </div>
+
+    <!-- Buton descărcare raport PDF -->
     <div class="button-center" style="margin-top: 20px;">
         <a href="{{ url_for('routes.leaderboard_pdf') }}" class="btn" target="_blank" rel="noopener noreferrer">Descarcă PDF</a>
     </div>
