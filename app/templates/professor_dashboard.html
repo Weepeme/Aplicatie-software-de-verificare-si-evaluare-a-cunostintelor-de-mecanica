@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Profesor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Dashboard Profesor</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+<form method="POST" style="background-color: black; padding: 10px; border-radius: 8px; color: white;">
+  <div style="margin-bottom: 15px;">
+    <label for="student_id">Selectează student:</label>
+    <select name="student_id" id="student_id" required style="margin-left: 10px;">
+      <option value="">-- Alege studentul --</option>
+      {% for student in students %}
+        <option value="{{ student._id }}">{{ student.nume }} {{ student.prenume }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div style="margin-bottom: 15px;">
+    <label>Gradul de dificultate:</label>
+    <div style="margin-top: 5px;">
+      <button type="submit" name="difficulty" value="grad 1" style="background-color: green; color: white; margin-right: 10px;">Grad 1</button>
+      <button type="submit" name="difficulty" value="grad 2" style="background-color: yellow; color: black; margin-right: 10px;">Grad 2</button>
+      <button type="submit" name="difficulty" value="grad 3" style="background-color: red; color: white;">Grad 3</button>
+    </div>
+  </div>
+</form>
+
+
+    {% if test_url %}
+        <p>Testul a fost creat: 
+          <a href="{{ test_url }}" target="_blank" class="highlight-link">{{ test_url }}</a></p>
+    {% endif %}
+
+    <!-- Link către leaderboard -->
+    <div class="button-center" style="margin-top: 30px;">
+    <a href="{{ url_for('routes.leaderboard') }}" class="btn">Vezi Punctajul Global</a>
+</div>
+
+<div class="button-center">
+    <p><a href="{{ url_for('routes.logout') }}" class="btn">Logout</a></p>
+    </div>
+  </div>
+</body>
+</html>

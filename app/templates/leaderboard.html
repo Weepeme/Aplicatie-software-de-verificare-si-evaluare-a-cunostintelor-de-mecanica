@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Punctaj Global Studenți</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="wrapper">
+    <h1 class="center-title">Punctaj Global Studenți</h1>
+
+    {% if leaderboard and leaderboard|length > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nume Prenume Student</th>
+                    <th>Grad de dificultate</th>
+                    <th>Data și ora testului</th>
+                    <th>Punctaj</th>
+                    <th>Media Punctajelor</th>
+                    <th>Media Echivalată</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in leaderboard %}
+                    {% set tests_count = student.tests|length %}
+                    {% for test in student.tests %}
+                    <tr>
+                        {% if loop.first %}
+                            <td rowspan="{{ tests_count }}">
+                                {{ student._id }}
+                            </td>
+                        {% endif %}
+                        <td class="
+  {% if test.difficulty == 'grad 1' %}
+    grad-1
+  {% elif test.difficulty == 'grad 2' %}
+    grad-2
+  {% elif test.difficulty == 'grad 3' %}
+    grad-3
+  {% else %}
+    grad-default
+  {% endif %}
+">{{ test.difficulty }}</td>
+                        <td>{{ test.completed_at.strftime('%d-%m-%Y %H:%M') if test.completed_at else 'N/A' }}</td>
+                        <td>{{ test.score }}/12</td>
+                        {% if loop.first %}
+                            <td rowspan="{{ tests_count }}">{{ '%.2f'|format(student.average_score) }}/12</td>
+                            <td rowspan="{{ tests_count }}">{{ '%.2f'|format(student.average_grade) }}/10</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nu există date pentru afișare.</p>
+    {% endif %}
+
+    <div class="button-center" style="margin-top: 20px;">
+        <a href="{{ url_for('routes.professor_dashboard') }}" class="btn">Înapoi la Dashboard</a>
+    </div>
+    <div class="button-center" style="margin-top: 20px;">
+        <a href="{{ url_for('routes.leaderboard_pdf') }}" class="btn" target="_blank" rel="noopener noreferrer">Descarcă PDF</a>
+    </div>
+</div>
+</body>
+</html>

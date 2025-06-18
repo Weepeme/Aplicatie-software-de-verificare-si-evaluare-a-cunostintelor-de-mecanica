@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8" />
+    <title>Test Mecanică</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <div class="blurred-background"></div>
+  <div class="wrapper">
+    <h1 class="center-title">Test de Mecanică</h1>
+    <div class="timer-container">Timp rămas: <span id="timer">10:00</span></div>
+
+    <form id="quizForm" method="POST" action="{{ url_for('routes.quiz') }}?test_id={{ test_id }}" 
+          onsubmit="document.getElementById('completedInput').value='true';">
+      <input type="hidden" name="completed" value="false" id="completedInput">
+      <input type="hidden" name="user_name" value="{{ user_name }}">
+
+      {% for question in questions %}
+      <div class="quiz-container">
+        <p><strong>Domeniu: {{ question.domain }}, Gradul de dificultate: {{ question.difficulty }}</strong></p>
+        <p><strong>{{ loop.index }}. {{ question.question }}</strong></p>
+        {% for option in question.options %}
+          <input type="radio" id="q{{ question._id }}_{{ loop.index }}" name="{{ question._id }}" value="{{ option }}" required>
+          <label for="q{{ question._id }}_{{ loop.index }}">{{ option }}</label><br>
+        {% endfor %}
+        <br>
+      </div>
+      {% endfor %}
+
+      <button type="submit">Trimite răspunsurile</button>
+    </form>
+  </div>
+
+  <script>
+    let timeLeft = Number("{{ time_left | default(0) }}");
+
+    const timerElement = document.getElementById('timer');
+    function updateTimer() {
+      let minutes = Math.floor(timeLeft / 60);
+      let seconds = timeLeft % 60;
+      timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    function startTimer() {
+      updateTimer();
+      const interval = setInterval(() => {
+          if (timeLeft <= 0) {
+              clearInterval(interval);
+              alert("Timpul a expirat! Se trimit răspunsurile.");
+              document.getElementById('completedInput').value = 'true';
+              document.getElementById('quizForm').submit();
+          } else {
+              timeLeft--;
+              updateTimer();
+          }
+      }, 1000);
+    }
+
+    window.onload = startTimer;
+  </script>
+</body>
+</html>
