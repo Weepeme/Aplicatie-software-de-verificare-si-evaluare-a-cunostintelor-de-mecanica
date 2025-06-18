@@ -26,11 +26,12 @@ def create_app():
     
     # Creăm conexiunea la MongoDB folosind variabila de mediu MONGO_URI
     client = MongoClient(os.environ["MONGO_URI"])
+   # Selectează baza de date
     db = client["questions_for_app"]  # Selectăm baza de date
     
-    # Setăm colecțiile în configurarea Flask pentru acces ușor în alte părți ale aplicației
+     # Setăm colecțiile în configurarea Flask pentru acces ușor în alte părți ale aplicației
     app.config["QUESTIONS_COLLECTION"] = db["Questions"]
-    app.config["LEADERBOARD_COLLECTION"] = db["leaderboard"]
+    app.config["STUDENTS_COLLECTION"] = db["students"]
     app.config["USERS_COLLECTION"] = db["users"]
     app.config["TESTS_COLLECTION"] = db["Tests"]
 
