@@ -4,43 +4,52 @@
     <meta charset="UTF-8" />
     <title>Punctaj Global Studenti</title>
     <style>
+    /* Stiluri generale pentru corpul paginii */
     body {
         font-family: Arial, sans-serif;
-        background: white;
-        color: black;
+        background: white;   
+        color: black;         
     }
+    /* Stiluri pentru tabel */
     table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: white; 
-        color: black; 
+        width: 100%;               
+        border-collapse: collapse; 
+        background-color: white;   
+        color: black;              
     }
+    /* Stiluri pentru celulele de tabel */
     th, td {
         border: 1px solid black; 
-        padding: 8px;
-        text-align: center;
-        color: black; 
+        padding: 8px;            
+        text-align: center;     
+        color: black;            
     }
+    /* Stiluri pentru antetul tabelului */
     th {
-        font-weight: bold;
-        background-color: white; 
-        color: black; 
+        font-weight: bold;        
+        background-color: white;  
+        color: black;             
     }
 </style>
 
 </head>
 <body>
     <style>
-  h1 {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-</style>
+      /* Stiluri specifice pentru titlu */
+      h1 {
+        text-align: center;
+        font-weight: bold;   
+        margin-bottom: 20px; 
+      }
+    </style>
+    <!-- Titlu pagină -->
     <h1>Punctaj Global Studenti</h1>
+
+    <!-- Tabelul cu punctaje -->
     <table>
         <thead>
             <tr>
+                <!-- Coloanele tabelului -->
                 <th>Nume Prenume Student</th>
                 <th>Grad de dificultate</th>
                 <th>Data si ora testului</th>
@@ -50,15 +59,26 @@
             </tr>
         </thead>
         <tbody>
+        <!-- Iterăm prin dicționarul students, unde cheia este numele studentului, iar valoarea este un obiect cu teste și medii -->
         {% for student_name, data in students.items() %}
+            <!-- Pentru fiecare test al studentului -->
             {% for test in data.tests %}
             <tr>
+                <!-- Pentru primul test afișăm numele studentului o singură dată, cu rowspan egal cu numărul de teste -->
                 {% if loop.first %}
                 <td rowspan="{{ data.tests|length }}">{{ student_name }}</td>
                 {% endif %}
+                
+                <!-- Afișăm gradul de dificultate pentru test -->
                 <td class="grade">{{ test.difficulty }}</td>
+                
+                <!-- Afișăm data și ora la care a fost completat testul, sau 'N/A' dacă nu este disponibilă -->
                 <td>{{ test.completed_at.strftime('%d-%m-%Y %H:%M') if test.completed_at else 'N/A' }}</td>
+                
+                <!-- Afișăm punctajul obținut la test -->
                 <td>{{ test.score }}/12</td>
+                
+                <!-- Pentru primul test afișăm media punctajelor și media echivalată, cu rowspan pentru toate testele -->
                 {% if loop.first %}
                 <td rowspan="{{ data.tests|length }}">{{ '%.2f'|format(data.average_score) }}/12</td>
                 <td rowspan="{{ data.tests|length }}">{{ '%.2f'|format(data.average_grade) }}/10</td>
