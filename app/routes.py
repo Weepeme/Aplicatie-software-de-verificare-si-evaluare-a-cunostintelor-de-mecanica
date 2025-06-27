@@ -152,7 +152,7 @@ def quiz():
     if time_left < 0:
         time_left = 0
 
-    # Dacă testul a fost deja finalizat, afișăm scorul și blocăm testul
+    # Dacă testul a fost deja finalizat, blocăm testul
     if test_doc.get('completed', False):
         return f"Testul este deja finalizat. Scor: {test_doc.get('score', 0)}/12."
 
@@ -162,7 +162,7 @@ def quiz():
         answers = test_doc.get('answers', {})
         answers.update(user_answers)  # Actualizăm răspunsurile în DB
 
-        # Calculăm scorul bazat pe răspunsurile corecte
+        # Calculăm punctajul bazat pe răspunsurile corecte
         score = 0
         for q in test_doc['questions']:
             qid = str(q['_id'])
@@ -181,7 +181,7 @@ def quiz():
         }
         tests_collection.update_one({"_id": test_id}, {"$set": update_data})
 
-        # Dacă testul e complet finalizat, redirecționăm la clasamentul studentului
+        # Dacă testul e complet finalizat, redirecționăm la punctajul studentului
         if completed:
             return redirect(url_for('routes.leaderboard_student', student_name=test_doc['student_name']))
         else:
@@ -197,7 +197,7 @@ def quiz():
         time_left=int(time_left)
     )
 
-# Clasamentul individual al unui student
+# Punctajul individual al unui student
 @bp.route('/leaderboard/student/<student_name>')
 def leaderboard_student(student_name):
     tests_collection = current_app.config.get("TESTS_COLLECTION")
@@ -211,7 +211,7 @@ def leaderboard_student(student_name):
 
     tests = list(tests_cursor)
 
-    # Calculăm media scorurilor; dacă nu există scor, considerăm 0
+    # Calculăm media punctajelor; dacă nu există punctaj, considerăm 0
     if not tests:
         average_score = 0
         average_grade = 0
@@ -261,7 +261,7 @@ def login():
     # Afișăm pagina de login
     return render_template('login.html')
 
-# Clasamentul global pentru profesori
+# Punctajul total pentru profesori
 @bp.route('/leaderboard')
 @login_required
 @role_required('profesor')
@@ -270,7 +270,7 @@ def leaderboard():
     if tests_collection is None:
         return "Configurație colecție teste lipsă", 500
 
-    # Agregăm testele finalizate și calculăm media scorurilor per student
+    # Agregăm testele finalizate și calculăm media punctajelor per student
     pipeline = [
         {"$match": {"completed": True, "score": {"$ne": None}}},
         {"$group": {
@@ -321,7 +321,7 @@ def leaderboard_pdf():
     if tests_collection is None:
         return "Configurație colecție teste lipsă", 500
 
-    # Preluăm toate testele finalizate cu scor valid, sortate după student și dată
+    # Preluăm toate testele finalizate cu punctaj valid, sortate după student și dată
     tests_cursor = tests_collection.find({
         "completed": True,
         "score": {"$ne": None}
@@ -373,7 +373,7 @@ def leaderboard_student_pdf(student_name):
     if tests_collection is None:
         return "Configurație colecție teste lipsă", 500
 
-    # Preluăm testele finalizate ale studentului cu scor valid, ordonate descrescător după data completării
+    # Preluăm testele finalizate ale studentului cu punctaj valid, ordonate descrescător după data completării
     tests_cursor = tests_collection.find({
         "student_name": student_name,
         "completed": True,
